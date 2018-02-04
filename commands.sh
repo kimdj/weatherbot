@@ -51,11 +51,11 @@ function weatherSubroutine {
     sed -i -r "2s|(.*)|Current Weather  ==>  \1|" output.tmp
 
     temp=$(cat output.tmp | sed -n 3p)
-    f_temp="$(python kelvin-to-fahrenheit.py ${temp})"
-    c_temp="$(python kelvin-to-celsius.py ${temp})"
-    sed -i "3s|.*|       Temp (f)  ==>  ${f_temp}|" output.tmp
+    f_temp="$(python kelvin-to-fahrenheit.py ${temp} | sed -r 's|\..*||')"
+    c_temp="$(python kelvin-to-celsius.py ${temp} | sed -r 's|\..*||')"
+    sed -i "3s|.*|           Temp  ==>  ${f_temp} ºF|" output.tmp
 
-    sed -i -r "4s|(.*)|       Humidity  ==>  \1                    (Courtesy of OpenWeatherMap.org)|" output.tmp
+    sed -i -r "4s|(.*)|       Humidity  ==>  \1%                   (Courtesy of OpenWeatherMap.org)|" output.tmp
 
     if [ -s output.tmp ] ; then
         while read -r line ; do                                 # -r flag prevents backslash chars from acting as escape chars.
@@ -107,26 +107,26 @@ elif has "${msg}" "^!weather$" ; then
     weatherSubroutine "${payload}"
 
 elif has "${msg}" "^!weather " ; then
-    payload=$(echo ${msg} | sed -r 's/^!weather //')
+    payload=$(echo ${msg} | sed -r 's|^!weather ||')
     weatherSubroutine "${payload}"
 
 # Get the weather forecast.
 
 elif has "${msg}" "^!forecast " ; then
-    payload=$(echo ${msg} | sed -r 's/^!forecast //')
+    payload=$(echo ${msg} | sed -r 's|^!forecast ||')
     say ${chan} "New Feature Coming Soon!"
-    # weatherSubroutine "${payload}"
+    # forecastSubroutine "${payload}"
 
 # Have weatherbot send an IRC command to the IRC server.
 
 elif has "${msg}" "^weatherbot: injectcmd " && [[ "${AUTHORIZED}" == *"${nick}"* ]] ; then
-    cmd=$(echo ${msg} | sed -r 's/^weatherbot: injectcmd //')
+    cmd=$(echo ${msg} | sed -r 's|^weatherbot: injectcmd ||')
     send "${cmd}"
 
 # Have weatherbot send a message.
 
 elif has "${msg}" "^weatherbot: sendcmd " && [[ "${AUTHORIZED}" == *"${nick}"* ]] ; then
-    buffer=$(echo ${msg} | sed -re 's/^weatherbot: sendcmd //')
+    buffer=$(echo ${msg} | sed -re 's|^weatherbot: sendcmd ||')
     dest=$(echo ${buffer} | sed -e "s| .*||")
     message=$(echo ${buffer} | cut -d " " -f2-)
     say ${dest} "${message}"

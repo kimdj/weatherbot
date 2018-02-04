@@ -27,7 +27,12 @@ headers_Get = {
 
 def trimet(payload):
     s = requests.Session()
-    url = 'http://api.openweathermap.org/data/2.5/weather?q=' + payload + '&appid=4e323304a266bc0ce4da1508ba8a991d'
+
+    if payload.isdigit() and len(payload) == 5:
+        url = 'http://api.openweathermap.org/data/2.5/weather?zip=' + payload + ',us&appid=4e323304a266bc0ce4da1508ba8a991d'
+    else:
+        url = 'http://api.openweathermap.org/data/2.5/weather?q=' + payload + '&appid=4e323304a266bc0ce4da1508ba8a991d'
+
     r = s.get(url, headers=headers_Get)
 
     soup = BeautifulSoup(r.text, "lxml")
