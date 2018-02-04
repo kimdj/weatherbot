@@ -45,30 +45,31 @@ function weatherSubroutine {
 
     python weather.py "${payload}" > output.tmp
 
-    # sed -i -r "1s|(.*)|           Line #  ==>  \1|" output.tmp
+    sed -i -r "1s|(.*)|       Location  ==>  \1|" output.tmp
 
-    # epoch=$(cat output.tmp | sed -n 2p)
-    # epoch_converted="$(date --date="@${epoch}")"
-    # sed -i "2s|.*|Next Arrival Time  ==>  ${epoch_converted}|" output.tmp
+    sed -i -e "2s|\b\(.\)|\u\1|g" output.tmp
+    sed -i -r "2s|(.*)|Current Weather  ==>  \1|" output.tmp
 
-    # sed -i -r "3s|(.*)|       Short Sign  ==>  \1|" output.tmp
+    temp=$(cat output.tmp | sed -n 3p)
+    f_temp="$(python kelvin-to-fahrenheit.py ${temp})"
+    c_temp="$(python kelvin-to-celsius.py ${temp})"
+    sed -i "3s|.*|       Temp (f)  ==>  ${f_temp}|" output.tmp
 
-    # sed -i -r "4s|(.*)|        Long Sign  ==>  \1|" output.tmp
+    sed -i -r "4s|(.*)|       Humidity  ==>  \1                    (Courtesy of OpenWeatherMap.org)|" output.tmp
 
-    # if [ -s output.tmp ] ; then
-    #     # say ${chan} "          Stop ID  ==>  ${payload}"
-    #     while read -r line ; do                                 # -r flag prevents backslash chars from acting as escape chars.
-    #         say ${chan} "${line}"
-    #     done < output.tmp
-    # else
-    #     say ${chan} "Sorry, there's a problem.."
-    # fi
+    if [ -s output.tmp ] ; then
+        while read -r line ; do                                 # -r flag prevents backslash chars from acting as escape chars.
+            say ${chan} "${line}"
+        done < output.tmp
+    else
+        say ${chan} "Sorry, there's a problem.."
+    fi
 }
 
 # This subroutine displays documentation for weatherbot's functionalities.
 
 function helpSubroutine {
-    say ${chan} "usage: !weather [city | zip]"
+    say ${chan} "usage: !weather [city | zip] | !forecast [city | zip]"
 }
 
 ################################################  Subroutines End  ################################################
@@ -81,7 +82,7 @@ function helpSubroutine {
 
 # Help Command.
 
-if has "${msg}" "^!weatherbot$" || has "${msg}" "^weatherbot: help$" || has "${msg}" "^!weather$" ; then
+if has "${msg}" "^!weatherbot$" || has "${msg}" "^weatherbot: help$" ; then
     helpSubroutine
 
 # Alive.
@@ -101,9 +102,20 @@ elif has "${msg}" "^weatherbot: source$" ||
 
 # Get the current weather.
 
+elif has "${msg}" "^!weather$" ; then
+    payload="Portland"
+    weatherSubroutine "${payload}"
+
 elif has "${msg}" "^!weather " ; then
     payload=$(echo ${msg} | sed -r 's/^!weather //')
     weatherSubroutine "${payload}"
+
+# Get the weather forecast.
+
+elif has "${msg}" "^!forecast " ; then
+    payload=$(echo ${msg} | sed -r 's/^!forecast //')
+    say ${chan} "New Feature Coming Soon!"
+    # weatherSubroutine "${payload}"
 
 # Have weatherbot send an IRC command to the IRC server.
 

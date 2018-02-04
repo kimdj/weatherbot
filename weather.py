@@ -1,5 +1,13 @@
+#!/usr/bin/env python
+# weatherbot ~ Script uses the OpenWeather API
+# Copyright (c) 2017 David Kim
+# This program is licensed under the "MIT License".
+# Date of inception: 2/5/18
+
 import requests
 from bs4 import BeautifulSoup
+import json
+
 import sys
 
 if len(sys.argv) == 1:                        # If no args exist, return immediately.
@@ -23,14 +31,27 @@ def trimet(payload):
     r = s.get(url, headers=headers_Get)
 
     soup = BeautifulSoup(r.text, "lxml")
-    print soup.prettify().encode('utf-8')
-    # soup.find('scheduled')
-    # tags = soup.find_all('arrival')
-    # t = tags[0]
-
-    # print t.attrs['route']
-    # print t.attrs['scheduled'][:-3]                 # Remove last 3 digits, which converts milliseconds to seconds (epoch time).
-    # print t.attrs['shortsign']
-    # print t.attrs['fullsign']
+    tags = soup.find_all('p')
+    t = tags[0]
+    t = t.contents
+    t = t[0]
+    return t
 
 r = trimet(payload)
+newDict=json.loads(str(r))
+
+strs = str(newDict['weather'][0])
+strs = strs.replace("'",'"')
+strs = strs.replace('u"','"')
+weatherDict = json.loads(strs)
+
+print newDict['name']
+print weatherDict['description']
+
+strs = str(newDict['main'])
+strs = strs.replace("'",'"')
+strs = strs.replace('u"','"')
+mainDict = json.loads(strs)
+
+print mainDict['temp']
+print mainDict['humidity']
