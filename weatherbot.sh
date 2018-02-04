@@ -1,17 +1,17 @@
 #!/bin/bash
-# busbot ~ main
+# weatherbot ~ main
 # Copyright (c) 2017 David Kim
 # This program is licensed under the "MIT License".
-# Date of inception: 2/4/18
+# Date of inception: 2/5/18
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"     # Path to busbot.
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"     # Path to weatherbot.
 
 # LOG_FILE_1=${DIR}/log.stdout        # Redirect file descriptors 1 and 2 to log.out
 # LOG_FILE_2=${DIR}/log.stderr
 # exec > >(tee -a ${LOG_FILE_1} )
 # exec 2> >(tee -a ${LOG_FILE_2} >&2)
 
-BOT_NICK="busbot"
+BOT_NICK="weatherbot"
 KEY="$(cat ./config.txt)"
 
 nanos=1000000000
